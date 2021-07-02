@@ -1,4 +1,5 @@
 'use strict'
+const { PerformanceObserver, performance } = require('perf_hooks')
 const alphabets = 'A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z'
 
 const alphabetsList = alphabets.split(',')
@@ -103,4 +104,17 @@ function factorial (n) {
   }, 1)
 }
 
-console.log(factorial(5))
+const computeRuntime = fn => {
+  const obs = new PerformanceObserver(items => {
+    console.log(items.getEntries()[0].duration / 1000)
+    performance.clearMarks()
+  })
+  obs.observe({ entryTypes: ['measure'] })
+  performance.mark('A')
+  fn()
+  performance.measure('A to Now', 'A')
+  performance.mark('B')
+  performance.measure('A to B', 'A', 'B')
+}
+
+console.log(computeRuntime(() => factorial(4)))
